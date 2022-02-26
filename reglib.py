@@ -44,7 +44,7 @@ class ModuleRegister(ABC):
         return result, reg
 
 
-def register_package(path: str, module_name: str):
+def register_package(path: str, module_name: str, package: str):
     clss = []
     unreg = []
     modules = []
@@ -56,7 +56,7 @@ def register_package(path: str, module_name: str):
                 continue
             name: str = i.name
 
-            module = import_module(f'.{module_name}.{name}', __package__)
+            module = import_module(f'.{module_name}.{name}', package)
 
             if not hasattr(module, 'Register'):
                 logging.info(f'Module {name} ignored.')

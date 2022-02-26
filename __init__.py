@@ -26,7 +26,7 @@ bl_info = {
     "category": "3D View"
 }
 
-reg, unreg, modules = register_package('./modules', 'modules')
+reg, unreg, modules = register_package('./modules', 'modules', __package__)
 
 classes = [
     *reg,
