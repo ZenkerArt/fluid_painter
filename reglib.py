@@ -56,7 +56,7 @@ def register_package(path: str, module_name: str):
                 continue
             name: str = i.name
 
-            module = import_module(f'.{module_name}.{name}', 'fluid_painter')
+            module = import_module(f'.{module_name}.{name}', __name__)
 
             if not hasattr(module, 'Register'):
                 logging.info(f'Module {name} ignored.')
