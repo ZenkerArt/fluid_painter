@@ -9,8 +9,14 @@ from .config import DISABLE_MODULES
 
 
 class ClsReg:
+    classes: list[Any]
+
+    def __init__(self):
+        self.classes = []
+
     def register(self, cls: Any):
         bpy.utils.register_class(cls)
+        self.classes.append(cls)
 
     def register_list(self, classes: list[Any]):
         for cls in classes:
@@ -28,18 +34,20 @@ class ModuleRegister(ABC):
         pass
 
     def init(self):
-        self.raw_register(ClsReg())
+        reg = ClsReg()
+        self.raw_register(reg)
         result = self.register()
 
         if not isinstance(result, list):
             raise ValueError('Required list.')
 
-        return result
+        return result, reg
 
 
 def register_package(path: str, module_name: str):
     clss = []
-
+    unreg = []
+    modules = []
     base_path = os.path.dirname(__file__)
 
     for i in os.scandir(os.path.join(base_path, path)):
@@ -57,8 +65,12 @@ def register_package(path: str, module_name: str):
             logging.info(f'Register module "{name}" from "{module_name}".')
             result: ModuleRegister = module.Register()
 
-            clss.extend(result.init())
+            reg, reg_cls = result.init()
+
+            clss.extend(reg)
+            unreg.extend(reg_cls.classes)
+            modules.append(result)
         except Exception as e:
             raise type(e)(f'{module_name}.{name}: {e.args[0]}')
 
-    return clss
+    return clss, unreg, modules

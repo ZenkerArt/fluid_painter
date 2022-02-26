@@ -1,3 +1,4 @@
+import logging
 from typing import Any
 
 import bpy
@@ -23,3 +24,9 @@ class Register(ModuleRegister):
             *operators,
             *tab
         ]
+
+    def unregister(self):
+        try:
+            del bpy.types.Material.fluid_mat
+        except Exception as e:
+            logging.warning(e.args[0])

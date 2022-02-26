@@ -10,6 +10,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+import logging
 
 import bpy
 from .reglib import register_package
@@ -25,8 +26,14 @@ bl_info = {
     "category": "3D View"
 }
 
+reg, unreg, modules = register_package('./modules', 'modules')
+
 classes = [
-    *register_package('./modules', 'modules'),
+    *reg,
+]
+
+classes_unreg = [
+    *unreg
 ]
 
 
@@ -36,5 +43,11 @@ def register():
 
 
 def unregister():
-    for cls in classes:
-        bpy.utils.unregister_class(cls)
+    for mod in modules:
+        mod.unregister()
+
+    for cls in [*classes, *classes_unreg]:
+        try:
+            bpy.utils.unregister_class(cls)
+        except Exception as e:
+            logging.warning(f'{cls.__name__}: {e.args[0]}')
