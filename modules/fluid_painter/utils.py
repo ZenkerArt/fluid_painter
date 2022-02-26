@@ -5,7 +5,10 @@ from ...config import GEO_PREFIX
 
 
 def get_geo_modifier(obj: bpy.types.Object) -> Optional[bpy.types.NodesModifier]:
-    if not obj and not obj.modifiers:
+    if obj is None:
+        return
+    
+    if not obj.modifiers:
         return
 
     if len(obj.modifiers) < 0:
