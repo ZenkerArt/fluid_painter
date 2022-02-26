@@ -5,6 +5,7 @@ from importlib import import_module
 from typing import Any
 
 import bpy
+from .config import DISABLE_MODULES
 
 
 class ClsReg:
@@ -38,9 +39,12 @@ class ModuleRegister(ABC):
 
 def register_package(path: str, module_name: str):
     clss = []
-    for i in os.scandir(path):
+
+    base_path = os.path.dirname(__file__)
+
+    for i in os.scandir(os.path.join(base_path, path)):
         try:
-            if i.name.startswith('_') or i.name.startswith('util'):
+            if i.name.startswith('_') or i.name.startswith('util') or i.name in DISABLE_MODULES:
                 continue
             name: str = i.name
 
