@@ -19,10 +19,10 @@ bl_info = {
     "author": "Zenker, Miki3dx",
     "description": "",
     "blender": (3, 0, 0),
-    "version": (0, 0, 1),
-    "location": "",
+    "version": (1, 0, 0),
+    "location": "https://github.com/ZenkerArt/fluid_painter",
     "warning": "",
-    "category": "Generic"
+    "category": "3D View"
 }
 
 classes = [
