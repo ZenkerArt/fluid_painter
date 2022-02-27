@@ -23,6 +23,6 @@ def load_image(ipath: str):
 
 
 def load():
-    logo_white = load_image(r'files\assets\logo\logo_fluid_red.png')
-    logo_1 = load_image(r'files\assets\logo\logo_fluid_red.png')
+    logo_white = load_image(r'files\assets\logo\logo_fluid_black.png')
+    logo_1 = load_image(r'files\assets\logo\logo_fluid_black.png')
     return logo_1, logo_white
