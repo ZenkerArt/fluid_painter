@@ -7,6 +7,7 @@ import bgl
 import blf
 import bpy
 import gpu
+from ...assets import load, get_pics
 from gpu_extras.batch import batch_for_shader
 
 handlers = []
@@ -405,21 +406,14 @@ class FLUIDP_OT_draw_material(bpy.types.Operator):
     bl_idname = 'fluidp.draw_material'
 
     def execute(self, context: bpy.types.Context):
-        path = r'C:\Users\ll\Desktop\blender_projects\addons\fluid_painter\files\assets\images\logo\logo_fluid_white.png'
-        logo_white = bpy.data.images.load(path)
-        logo_1 = bpy.data.images.load(r'C:\Users\ll\Desktop\blender_projects\addons\fluid_painter\files\assets\images\logo\fluid_logo_1.png')
+        logo_white, logo_1 = load()
         white = (255, 255, 255)
-        images = []
+        images = get_pics()
 
-        for i in os.scandir(IMAGES_PATH):
-            image = bpy.data.images.load(i.path, check_existing=True)
-            image.gl_load()
-            images.append(image)
-
-        # blender_image.
-        logo_1.gl_load()
-        if logo_white.gl_load():
-            raise Exception()
+        # for i in os.scandir(IMAGES_PATH):
+        #     image = bpy.data.images.load(i.path, check_existing=True)
+        #     image.gl_load()
+        #     images.append(image)
 
         def draw():
             region = get_region(context)
