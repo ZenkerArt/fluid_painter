@@ -9,6 +9,10 @@ import bpy
 import gpu
 from ...assets import load, get_pics
 from gpu_extras.batch import batch_for_shader
+import ctypes
+
+user32 = ctypes.windll.user32
+screensize = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
 
 handlers = []
 IMAGES_PATH = r'C:\Users\ll\Desktop\blender_projects\addons\fluid_painter\files\Pics'
@@ -419,7 +423,7 @@ class FLUIDP_OT_draw_material(bpy.types.Operator):
             region = get_region(context)
             ui = get_ui(context)
             window = Window(region, ui=ui)
-            scale = window.width / 1920
+            scale = window.width / screensize[0]
 
             if region != context.region:
                 return
@@ -465,12 +469,12 @@ class FLUIDP_OT_draw_material(bpy.types.Operator):
                 return preview_mat
 
             items_count = 8
-            offset = 30
-            bg_size = 50
+            offset = 50 * scale
+            bg_size = 70 * scale
             layout = HLayout()
-            layout.set_pos(offset / 2, 20)
+            layout.set_pos(offset, 50 * scale)
             layout.set_width(window.width - offset / 2)
-            layout.set_gap(offset + 5)
+            layout.set_gap(offset + 20 * scale)
 
             for img in images[:items_count]:
                 name = ' '.join(img.name.rsplit('.')[0].split('_'))
@@ -490,11 +494,11 @@ class FLUIDP_OT_draw_material(bpy.types.Operator):
                     .set_pos(wid.x, wid.y) \
                     .set_size(wid.width, wid.height) \
                     .set_offset(offset, offset) \
-                    .set_color(.8, 0, .0) \
+                    .set_color(.15, .15, .15) \
                     .draw()
 
-                Image(logo_white) \
-                    .set_pos(wid.x - bg_size / 2, (wid.y + 80 * scale) - bg_size / 2) \
+                Image(logo_1) \
+                    .set_pos(wid.x - bg_size / 2, (wid.y + 60 * scale) - bg_size / 2) \
                     .set_size(wid.width + bg_size, wid.width + bg_size) \
                     .draw()
 
@@ -508,7 +512,6 @@ class FLUIDP_OT_draw_material(bpy.types.Operator):
             layout.draw()
 
             popup_offset = 140 * scale
-            popup_bg_size = 120
 
             for index, wid in enumerate(layout.widgets):
                 if wid.events.is_hover():
@@ -516,9 +519,9 @@ class FLUIDP_OT_draw_material(bpy.types.Operator):
                     name = ' '.join(img.name.rsplit('.')[0].split('_'))
 
                     popup = build_preview_popup(name, img)
-                    popup.set_width(wid.width * 2)
+                    popup.set_width(wid.width * 1.5)
                     popup.set_pos(wid.x - offset / 2 + popup_offset / 2,
-                                  wid.y + wid.height + offset / 2 + popup_offset / 2)
+                                  wid.y + wid.height + offset / 2 + popup_offset / 2 + 20 * scale)
                     popup.compute()
 
                     Rect() \
@@ -526,11 +529,6 @@ class FLUIDP_OT_draw_material(bpy.types.Operator):
                         .set_size(popup.width, popup.height) \
                         .set_offset(popup_offset, popup_offset) \
                         .set_color(.1, .1, .1) \
-                        .draw()
-
-                    Image(logo_1) \
-                        .set_pos(popup.x - popup_bg_size / 2, (popup.y + 150 * scale) - popup_bg_size / 2) \
-                        .set_size(popup.width + popup_bg_size, popup.width + popup_bg_size) \
                         .draw()
 
                     popup.draw()
