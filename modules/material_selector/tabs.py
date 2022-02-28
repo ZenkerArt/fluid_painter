@@ -11,11 +11,11 @@ from ...blendui.widgets import Text, Image, Rect
 from ...blendui.window import Window
 
 handlers = []
-
+g_scroll = 1
 
 @dataclass
 class FluidMaterialData:
-    material: bpy.types.Material
+    material: str
     image: bpy.types.Image
 
 
@@ -32,14 +32,10 @@ class ActiveWidget:
         return cls.data is not None and cls.is_hover()
 
 
-class MaterialDrawSettings(bpy.types.PropertyGroup):
-    row_count: bpy.props.IntProperty(default=5)
-
-
 class FLUIDP_OT_create_curve(bpy.types.Operator):
     bl_label = 'Create fluid curve'
     bl_idname = 'fluidp.create_curve'
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_options = {'REGISTER', 'UNDO_GROUPED'}
 
     material_name: bpy.props.StringProperty(options={'HIDDEN'})
 
@@ -48,7 +44,7 @@ class FLUIDP_OT_create_curve(bpy.types.Operator):
         crv.dimensions = '3D'
         spline = crv.splines.new(type='BEZIER')
 
-        obj = bpy.data.objects.new('FluidPainterCurve', crv)
+        obj = bpy.data.objects.new(f'FluidPainterCurve - {self.material_name}', crv)
         mod: bpy.types.NodesModifier = obj.modifiers.new(name='Fluid Painter', type='NODES')
         mod.node_group = bpy.data.node_groups['Fluid Painter']
         mod['Input_3'] = bpy.data.materials[self.material_name]
@@ -76,7 +72,7 @@ class FLUIDP_OT_event_catcher(bpy.types.Operator):
         EventCatcher.mouse_offset = (region.x, region.y)
 
         if event.type == 'LEFTMOUSE' and event.value == 'PRESS' and ActiveWidget.valid():
-            bpy.ops.fluidp.create_curve(material_name=ActiveWidget.data.material.name)
+            bpy.ops.fluidp.create_curve(material_name=ActiveWidget.data.material)
             return {"RUNNING_MODAL"}
 
         return {"PASS_THROUGH"}
@@ -90,6 +86,8 @@ class FLUIDP_OT_draw_material(bpy.types.Operator):
     bl_label = 'draw_material'
     bl_idname = 'fluidp.draw_material'
 
+    scroll: bpy.props.IntProperty('Scroll', default=0)
+
     def execute(self, context: bpy.types.Context):
         logo_white, logo_1 = load()
         images = get_pics()
@@ -99,9 +97,11 @@ class FLUIDP_OT_draw_material(bpy.types.Operator):
             if not i.name.startswith('Fluid'):
                 continue
 
+            image_name = i.name.replace(' - ', '_').replace(' ', '') + '.png'
+
             materials.append(FluidMaterialData(
-                material=i,
-                image=images[0]
+                material=i.name,
+                image=bpy.data.images.get(image_name) or logo_white
             ))
 
         def draw():
@@ -115,15 +115,19 @@ class FLUIDP_OT_draw_material(bpy.types.Operator):
             preview_font_size = scale * 20
 
             items_count = 8
+            items_offset = g_scroll
+
             offset = 50 * scale
             bg_size = 70 * scale
             layout = HLayout()
             layout.set_pos(offset, 50 * scale)
             layout.set_width(window.width - offset / 2)
             layout.set_gap(offset + 20 * scale)
+            material_scroll = materials[items_offset:items_offset + items_count]
 
-            for fluid_mat in materials[:items_count]:
-                name = ' '.join(fluid_mat.material.name)
+            for fluid_mat in material_scroll:
+                name = fluid_mat.material
+
                 layout.add_widget(build_preview_mat(
                     window,
                     name,
@@ -159,12 +163,12 @@ class FLUIDP_OT_draw_material(bpy.types.Operator):
             layouts: list[VLayout] = layout.widgets
             for index, wid in enumerate(layouts):
                 if wid.events.is_hover():
-                    fluid_mat = materials[index]
+                    fluid_mat = material_scroll[index]
                     width = wid.width * 3
                     x = wid.x - offset / 2 + popup_offset / 2
                     y = wid.y + wid.height + offset / 2 + popup_offset / 2 + 20 * scale
 
-                    popup = build_preview_popup(window, label=fluid_mat.material.name, subtitle='By Miki3DX',
+                    popup = build_preview_popup(window, label=fluid_mat.material, subtitle='By Miki3DX',
                                                 image=fluid_mat.image)
 
                     if x + width + popup_offset > window.width:
@@ -188,7 +192,8 @@ class FLUIDP_OT_draw_material(bpy.types.Operator):
 
             EventCatcher.reset()
 
-        draw_handler = bpy.types.SpaceView3D.draw_handler_add(draw, (), 'WINDOW', 'POST_PIXEL')
+        draw_handler = bpy.types.SpaceView3D.draw_handler_add(draw, (), 'WINDOW',
+                                                              'POST_PIXEL')
         EventCatcher.run()
         handlers.append(draw_handler)
         tag_redraw(context)
@@ -210,6 +215,19 @@ class FLUIDP_OT_undraw_material(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class FLUIDP_OT_scroll(bpy.types.Operator):
+    bl_label = 'Scroll'
+    bl_idname = 'ff.awefawef'
+
+    scroll: bpy.props.IntProperty(default=0)
+
+    def execute(self, context: bpy.types.Context):
+        global g_scroll
+
+        g_scroll += self.scroll
+        return {'FINISHED'}
+
+
 class FLUIDP_PT_material_selector(bpy.types.Panel):
     bl_label = 'Material'
     bl_space_type = 'VIEW_3D'
@@ -220,6 +238,11 @@ class FLUIDP_PT_material_selector(bpy.types.Panel):
         self.layout.operator(FLUIDP_OT_draw_material.bl_idname)
         self.layout.operator(FLUIDP_OT_undraw_material.bl_idname)
 
+        s = self.layout.split()
+
+        s.operator(FLUIDP_OT_scroll.bl_idname, text='<').scroll = -1
+        s.operator(FLUIDP_OT_scroll.bl_idname, text='>').scroll = 1
+
 
 classes = [FLUIDP_OT_draw_material, FLUIDP_OT_undraw_material, FLUIDP_PT_material_selector, FLUIDP_OT_event_catcher,
-           FLUIDP_OT_create_curve]
+           FLUIDP_OT_create_curve, FLUIDP_OT_scroll]
