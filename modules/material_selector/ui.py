@@ -17,10 +17,10 @@ def build_preview_mat(
 
     preview_mat = VLayout()
     preview_mat.set_margin(scale * 50)
-    preview_mat.add_widget(Text()
-                           .set_text(label)
-                           .set_height(label_size)
-                           .set_color(.8, .8, .8))
+    # preview_mat.add_widget(Text()
+    #                        .set_text(label)
+    #                        .set_height(label_size)
+    #                        .set_color(.8, .8, .8))
     preview_mat.add_widget(Image(image))
 
     p.add_widget(preview_mat)

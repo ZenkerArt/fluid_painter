@@ -5,7 +5,13 @@ from .widgets import Widget
 class EventCatcher:
     mouse_pos: tuple[int, int] = (0, 0)
     mouse_offset: tuple[int, int] = (0, 0)
+    is_press: bool = False
     is_running: bool = False
+    widgets: list['EventCatcherWidget'] = []
+
+    @classmethod
+    def reset(cls):
+        pass
 
     @classmethod
     def mouse_pos_relative(cls):
@@ -16,6 +22,8 @@ class EventCatcher:
     @classmethod
     def event(cls, event: bpy.types.Event):
         cls.mouse_pos = (event.mouse_x, event.mouse_y)
+        cls.is_press = event.type == 'LEFTMOUSE'
+        # if event.type == 'LEFTMOUSE':
 
     @classmethod
     def run(cls):
@@ -29,9 +37,11 @@ class EventCatcher:
 
 class EventCatcherWidget:
     _widget: 'Widget'
+    _is_click: bool = False
 
     def __init__(self, widget: 'Widget'):
         self._widget = widget
+        EventCatcher.widgets.append(self)
 
     def is_hover(self):
         x, y, w, h = self._widget.x, self._widget.y, self._widget.width, self._widget.height
@@ -41,4 +51,5 @@ class EventCatcherWidget:
 
         if cx or cy:
             return False
+
         return True

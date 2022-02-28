@@ -7,6 +7,8 @@ class FLUIDP_PT_fluid_settings(FluidBaseTab, bpy.types.Panel):
     bl_label = 'Fluid'
 
     def draw_tab(self, geo_mod: bpy.types.NodesModifier):
+        self.create_search_field(3, bpy.data, 'materials', icon=Icons.material)
+
         self.create_field(27, 'Subdivision', slider=True)
         self.create_field(2, 'Thickness', slider=True)
         self.create_field(13, 'Roughness', slider=True)
