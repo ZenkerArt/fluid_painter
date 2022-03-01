@@ -120,6 +120,7 @@ class FLUIDP_OT_draw_material(bpy.types.Operator):
             offset = 50 * scale
             bg_size = 70 * scale
             layout = HLayout()
+            layout.set_row_count(8)
             layout.set_pos(offset, 50 * scale)
             layout.set_width(window.width - offset / 2)
             layout.set_gap(offset + 20 * scale)

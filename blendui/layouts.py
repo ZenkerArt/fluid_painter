@@ -52,6 +52,10 @@ class HLayout(Layout):
             if hasattr(widget, 'compute'):
                 widget.compute()
 
+    def set_row_count(self, value: int):
+        self._row_count = value
+        return self
+
     def set_gap(self, gap: float):
         self._margin = gap
 
