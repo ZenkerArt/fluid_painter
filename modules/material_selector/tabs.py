@@ -13,6 +13,7 @@ from ...blendui.window import Window
 handlers = []
 g_scroll = 1
 
+
 @dataclass
 class FluidMaterialData:
     material: str
@@ -98,10 +99,14 @@ class FLUIDP_OT_draw_material(bpy.types.Operator):
                 continue
 
             image_name = i.name.replace(' - ', '_').replace(' ', '') + '.png'
+            image = bpy.data.images.get(image_name)
+
+            if image is not None:
+                image.gl_load()
 
             materials.append(FluidMaterialData(
                 material=i.name,
-                image=bpy.data.images.get(image_name) or logo_white
+                image=image or logo_white
             ))
 
         def draw():
