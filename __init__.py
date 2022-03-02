@@ -1,6 +1,7 @@
 import logging
 
 import bpy
+from .assets import Assets
 from .reglib import register_package
 
 bl_info = {

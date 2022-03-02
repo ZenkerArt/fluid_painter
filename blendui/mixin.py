@@ -1,14 +1,14 @@
-from .utils import ColorRGBA
+from .utils import Color
 
 
 class WithColor:
-    _color: ColorRGBA
+    _color: Color
 
     def __init__(self):
-        self._color = ColorRGBA()
+        self._color = Color()
 
-    def set_color(self, r: float, g: float, b: float):
-        self._color.rgb((r, g, b))
+    def set_color(self, color: Color):
+        self._color = color
         return self
 
     def set_alpha(self, value: int):

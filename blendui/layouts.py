@@ -10,6 +10,7 @@ class Layout(Widget, ABC):
     _computed: bool = False
 
     def __init__(self):
+        super().__init__()
         self._widgets = []
         self.events = EventCatcherWidget(self)
 
@@ -59,7 +60,7 @@ class HLayout(Layout):
     def set_gap(self, gap: float):
         self._margin = gap
 
-    def draw(self):
+    def _draw(self):
         self.compute()
         for index, widget in enumerate(self._widgets):
             widget.draw()
@@ -93,8 +94,16 @@ class VLayout(Layout):
             height += self._calc_height(widget)
         return height
 
+    def _draw(self):
+        self.compute()
+
+        for widget in self._widgets:
+            widget.draw()
+
     def draw(self):
         self.compute()
 
-        for index, widget in enumerate(self._widgets):
-            widget.draw()
+        for style in self._style:
+            style.draw()
+
+        self._draw()

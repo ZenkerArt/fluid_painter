@@ -1,28 +1,30 @@
 import os
 
 import bpy
+base_path = os.path.realpath(os.path.dirname(__file__))
+
+lib_path = os.path.join(base_path, 'files/FluidLib.blend')
 
 
-def get_pics() -> list[bpy.types.Image]:
-    images = []
+class Assets:
+    images: list[bpy.types.Image] = []
+    fluid_logo_black: bpy.types.Image
 
-    base_path = os.path.realpath(os.path.dirname(__file__))
-    for i in os.scandir(os.path.join(base_path, './files/Pics')):
-        images.append(load_image(i.path))
+    @classmethod
+    def load(cls):
+        cls.fluid_logo_black = load_image(r'files\assets\logo\logo_fluid_black.png')
+        images = []
 
-    return images
+        # base_path = os.path.realpath(os.path.dirname(__file__))
+        # for i in os.scandir(os.path.join(base_path, './files/Pics')):
+        #     images.append(load_image(i.path))
+
+        # cls.images = images
 
 
 def load_image(ipath: str):
-    base_path = os.path.realpath(os.path.dirname(__file__))
     path = os.path.join(base_path, ipath)
     image = bpy.data.images.load(path, check_existing=True)
     image.gl_load()
 
     return image
-
-
-def load():
-    logo_white = load_image(r'files\assets\logo\logo_fluid_black.png')
-    logo_1 = load_image(r'files\assets\logo\logo_fluid_black.png')
-    return logo_1, logo_white
