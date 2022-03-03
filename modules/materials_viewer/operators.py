@@ -53,6 +53,15 @@ class FLUIDP_OT_create_curve(bpy.types.Operator):
             if len(objs) == 1 and '+' in d.name:
                 geo['Input_41'] = objs[0]
 
+            if len(objs) > 1 and '+' in d.name:
+                c = bpy.data.collections.new(f'Fluid_{d.name}_Collection')
+                context.collection.children.link(c)
+
+                for i in objs:
+                    c.objects.link(i)
+
+                geo['Input_36'] = c
+
             context.collection.objects.link(obj)
             context.view_layer.objects.active = obj
             bpy.ops.object.mode_set(mode='EDIT')
