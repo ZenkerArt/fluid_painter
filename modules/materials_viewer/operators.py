@@ -35,7 +35,9 @@ class FLUIDP_OT_create_curve(bpy.types.Operator):
     material_name: bpy.props.StringProperty(options={'HIDDEN'})
 
     def execute(self, context: bpy.types.Context):
-        bpy.ops.object.mode_set(mode='OBJECT')
+        if context.active_object is not None:
+            bpy.ops.object.mode_set(mode='OBJECT')
+
         if isinstance(ActiveWidget.data, MaterialsViewerBlendItem):
             d = ActiveWidget.data
             obj = d.load()
