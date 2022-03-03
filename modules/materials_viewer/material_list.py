@@ -18,15 +18,19 @@ class MaterialsViewerBlendItem(MaterialsViewerItem):
     path: str
 
     def load(self):
-        lib = bpy.data.libraries.load(self.path)
         name = f'Fluid_{self.name}_Object'
+        original_object = bpy.data.objects.get(name)
 
-        with lib as (data_from, data_to):
-            data_to.objects.append(name)
+        if original_object is None:
+            lib = bpy.data.libraries.load(self.path)
+            with lib as (data_from, data_to):
+                data_to.objects.append(name)
 
-        bpy.data.objects[name].data = bpy.data.objects[name].data.copy()
+            original_object = bpy.data.objects[name]
 
-        return bpy.data.objects[name].copy()
+        new_object = original_object.copy()
+        new_object.data = original_object.data.copy()
+        return new_object.copy()
 
 
 class MaterialViewList(ABC, Iterable[MaterialsViewerItem]):
